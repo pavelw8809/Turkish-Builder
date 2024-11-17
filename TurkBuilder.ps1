@@ -1,4 +1,31 @@
-﻿$word = "abi"
+﻿# create ExceptionHandler.ps1
+# create lists of exceptions in ExceptionHandler.ps1
+# handle consonant change
+# handle vocal exceptions
+
+$word = "abi"
+
+class NounObj {
+    [string]$word
+    [bool]$ldExc # letter drop
+    [bool]$ccExc # consonant change (pb, cc, kg, td)
+    [bool]$veExc # vocal exceptions
+    [bool]$yExc # su, suyu
+}
+
+Function anayzeWord {
+    param($word)
+
+    $vowels = "aeıioöuü"
+
+
+}
+
+Function addCa {
+    param([string]$word)
+
+    $vowels = "aeıioöuü"
+}
 
 Function addPastSimpleDef {
     param([string]$word)
@@ -88,12 +115,25 @@ Function addDef {
 
     # ZAMIANA LITER
     # sehir -> sehri, nehir, nehri
+    $irExc = @("boyun", "emir", "fikir", "hayır", "kadir", "nehir", "şehir", "şekir", "şükür", "zikir")
 
     # GLOSSAL HARMONY BY CONSONANT EXCEPTIONS 
-    # ç c  p b  g ğ  t d 
+    # ç c  p b  g ğ  t d (bez jednosylab., internet, robot, market, reset, set, devlet, saat, seyahat)  k g (a, e, o, ö)  k ğ (u, ü, ı, i)
+    $tExc = @("cumhuriyet", "devlet", "internet", "market", "reset", "robot", "saat", "set", "seyahat")
+    # + all one syllable
+
+    $pExc = @("sap")
+    # + all one syllable
+
+    $kExc = @("ak", "ek")
+    # + all one syllable
 
     # GLOSSAL HARMONY EXCEPTIONS
-    $iexc = @("saat", "kalp", "hayal", "alkol", "seyahat")
+    $iexc = @("alkol", "hayal", "kalp", "saat", "seyahat")
+
+    $cExc = @("saç", "")
+    # + all one syllable
+
     $ueExc = @("alkol") # -> ü
 
     # ENCEPTION Y INSTEAD S
@@ -197,7 +237,58 @@ Function addDef {
     return $output
 }
 
-addDef "saat"
+function getSyllables {
+    param([string]$word)
+
+    $vowels = "aeıioöuü"
+
+    $getLetters = $word.ToCharArray()
+    $consIndexes = @()
+    $syllables = @()
+    $lastIsCons = $false
+    $isCons = $false
+    $syllable = $null
+
+    for ($i = 0; $i -lt $getLetters.Length; $i++) {
+        $prevLetter = if ($i -gt 0) {$getLetters[$i-1]} else {$null}
+        $currentLetter = $getLetters[$i]
+        $nextLetter = $getLetters[$i+1]
+
+        Write-Host "cl $currentLetter"
+        Write-Host "pl $prevLetter"
+
+        if ($i -gt 0 -And (!$vowels.Contains($currentLetter) -And $vowels.Contains($nextLetter) -And $nextLetter)) {
+            $syllables += $syllable
+            Write-Host "full: $syllable"
+            $syllable = $getLetters[$i]
+            Write-Host "syl: $syllable"
+        } else {
+            $syllable += $getLetters[$i]
+            Write-Host "add: $syllable"
+        }
+    }
+
+    $syllables += $syllable
+
+    $syllables
+
+    <#
+    foreach ($l in $getLetters) {
+        if ($isCons -And $lastIsCons -And $syllable) {
+            $syllables += $syllable
+            Write-Host $syllable
+            $syllable = ""
+        } else {
+            $syllable += $l
+            Write-Host $syllable
+        }
+    }
+    #>
+}
+
+getSyllables "Ilac"
+
+#addDef "saat"
 
 
 
